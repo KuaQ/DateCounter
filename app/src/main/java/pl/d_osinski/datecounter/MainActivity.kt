@@ -42,5 +42,6 @@ class MainActivity : AppCompatActivity() {
             val intent = Intent(this, AddItemActivity::class.java)
             startActivity(intent)
         }
+
     }
 }

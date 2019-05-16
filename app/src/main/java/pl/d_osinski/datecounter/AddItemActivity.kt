@@ -5,68 +5,47 @@ import android.os.Bundle
 import android.os.CountDownTimer
 import androidx.appcompat.app.AppCompatActivity
 import kotlinx.android.synthetic.main.activity_add_item.*
+import java.text.SimpleDateFormat
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import java.util.*
 import java.util.concurrent.TimeUnit
 
 
 class AddItemActivity : AppCompatActivity() {
 
+    companion object {
+        const val DATE_FORMATTER = "dd.MM.yyyy"
+    }
+    lateinit var countDownTimer: CountDownTimer
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_add_item)
-        button.setOnClickListener{
-            val c = Calendar.getInstance()
-            var day = c.get(Calendar.DAY_OF_MONTH)
-            var month = c.get(Calendar.MONTH)
-            var year = c.get(Calendar.YEAR)
-
-            val dpd = DatePickerDialog(
-                this,
-                DatePickerDialog.OnDateSetListener { _, yearSel, monthOfYear, dayOfMonth ->
-                    day = dayOfMonth
-                    month = monthOfYear + 1
-                    year = yearSel
-                    c.set(year, month, day)
-
-                    button.text = c.timeInMillis.toString()
-                    startCountDown(c.timeInMillis)
-                }, year, month, day
-            )
-
-            dpd.show()
+        button.setOnClickListener {
+            showDatePicker()
         }
-         //textView.text = calculate(time)
+
     }
 
-    private fun calculate(end: Long): String{
-        return (end - System.currentTimeMillis()).toString()
+    private fun formatDate(time: Long): String{
+        return SimpleDateFormat(DATE_FORMATTER, Locale.getDefault()).format(time)
     }
 
-    private fun startCountDown(endMilis: Long) {
-        val startCalendar = Calendar.getInstance()
-        val startMillis = startCalendar.timeInMillis//get the start time in milliseconds
-        val totalMillis = endMilis - startMillis //total time in milliseconds
-        //start countDown
-        val countDownTimer = object : CountDownTimer(totalMillis, 1000) {
+    private fun showDatePicker(){
+        val calendarInstance = Calendar.getInstance()
+        val day = calendarInstance.get(Calendar.DAY_OF_MONTH)
+        val month = calendarInstance.get(Calendar.MONTH)
+        val year = calendarInstance.get(Calendar.YEAR)
 
-            override fun onTick(millisUntilFinished: Long) {
-                var millisUntilFinished = millisUntilFinished
-                val hours = TimeUnit.MILLISECONDS.toHours(millisUntilFinished)
-                millisUntilFinished -= TimeUnit.HOURS.toMillis(hours)
-
-                val minutes = TimeUnit.MILLISECONDS.toMinutes(millisUntilFinished)
-                millisUntilFinished -= TimeUnit.MINUTES.toMillis(minutes)
-
-                val seconds = TimeUnit.MILLISECONDS.toSeconds(millisUntilFinished)
-
-                textView.text = ("$hours  $minutes  $seconds")
-            }
-
-            override fun onFinish() {
-
-            }
-
-        }
-        countDownTimer.start()
+        val dpd = DatePickerDialog(
+            this,
+            DatePickerDialog.OnDateSetListener { _, yearSel, monthOfYear, dayOfMonth ->
+                calendarInstance.set(dayOfMonth, monthOfYear, yearSel)
+                formatDate(calendarInstance.timeInMillis)
+            }, year, month, day
+        )
+        dpd.show()
     }
+
+
 }
