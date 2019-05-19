@@ -21,7 +21,7 @@ class AddItemActivity : AppCompatActivity() {
     var isRunning: Boolean = false
 
     private lateinit var binding: ActivityAddItemBinding
-    private val dataBind: DataBinding = DataBinding("","", "Select date")
+    private val dataBind: DataBinding = DataBinding("", "", "Select date")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_add_item)
@@ -32,15 +32,15 @@ class AddItemActivity : AppCompatActivity() {
     }
 
 
-    private fun setSelectedDateView(formattedDate: String, dateMilis: Long) {
+    private fun setSelectedDateView(formattedDate: String, dateMillis: Long) {
         binding.apply {
             dataBind.dateFormatted = formattedDate
-            dataBind.buttonText = dateMilis.toString()
+            dataBind.buttonText = dateMillis.toString()
         }
 
         //tvCounter
         val startMillis = Calendar.getInstance().timeInMillis
-        val totalMillis = dateMilis - startMillis
+        val totalMillis = dateMillis - startMillis
 
         counterMng(totalMillis)
     }
@@ -63,9 +63,7 @@ class AddItemActivity : AppCompatActivity() {
                 val seconds = TimeUnit.MILLISECONDS.toSeconds(millisUntilFinished)
 
                 var textform = ""
-                if (days > 0) {
-                     textform = "$days days, "
-                }
+                if (days > 0) textform = "$days days, "
                 textform += timeFormatter(hours) + ":" + timeFormatter(minutes) + ":" + timeFormatter(seconds)
 
                 isRunning = true
@@ -81,11 +79,11 @@ class AddItemActivity : AppCompatActivity() {
         }.start()
     }
 
-    //TODO make function which adding '0' when hour, min and sec are 1-9 (01, 02)
+    //TODO check performance of this - make function which adding '0' when hour, min and sec are 1-9 (01, 02)
     private fun timeFormatter(timeText: Long): String {
-        return if (timeText < 10){
+        return if (timeText < 10) {
             "0$timeText"
-        }else{
+        } else {
             timeText.toString()
         }
     }
