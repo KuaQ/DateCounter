@@ -4,35 +4,39 @@ import android.app.DatePickerDialog
 import android.os.Bundle
 import android.os.CountDownTimer
 import androidx.appcompat.app.AppCompatActivity
-import kotlinx.android.synthetic.main.activity_add_item.*
+import androidx.databinding.DataBindingUtil
+import pl.d_osinski.datecounter.databinding.ActivityAddItemBinding
 import java.text.SimpleDateFormat
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
 import java.util.*
 import java.util.concurrent.TimeUnit
 
 
-
-
-class AddItemActivity : AppCompatActivity(){
+class AddItemActivity : AppCompatActivity() {
 
     companion object {
         const val DATE_FORMATTER = "EEEE, dd.MM.yyyy"
     }
+
     var countDownTimer: CountDownTimer? = null
     var isRunning: Boolean = false
+
+    private lateinit var binding: ActivityAddItemBinding
+    private val dataBind: DataBinding = DataBinding("","", "Select date")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_add_item)
-        button.setOnClickListener {
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_add_item)
+        binding.dataBinding = dataBind
+        binding.button.setOnClickListener {
             showDatePicker()
         }
     }
 
 
-    private fun setSelectedDateView(formattedDate: String, dateMilis: Long){
-        textView.text = formattedDate
-        button.text = dateMilis.toString()
+    private fun setSelectedDateView(formattedDate: String, dateMilis: Long) {
+        binding.apply {
+            dataBind.dateFormatted = formattedDate
+            dataBind.buttonText = dateMilis.toString()
+        }
 
         //tvCounter
         val startMillis = Calendar.getInstance().timeInMillis
@@ -41,8 +45,8 @@ class AddItemActivity : AppCompatActivity(){
         counterMng(totalMillis)
     }
 
-    private fun counterMng(totalMillis: Long){
-       countDownTimer = object : CountDownTimer(totalMillis, 1000) {
+    private fun counterMng(totalMillis: Long) {
+        countDownTimer = object : CountDownTimer(totalMillis, 1000) {
 
             override fun onTick(millisUntilFinishedd: Long) {
                 var millisUntilFinished = millisUntilFinishedd
@@ -58,14 +62,17 @@ class AddItemActivity : AppCompatActivity(){
 
                 val seconds = TimeUnit.MILLISECONDS.toSeconds(millisUntilFinished)
 
-                val textform: String
-                textform = if(days > 0) {
-                    "$days days, $hours:$minutes:$seconds"
-                }else{
-                    "$hours:$minutes:$seconds"
+                var textform = ""
+                if (days > 0) {
+                     textform = "$days days, "
                 }
+                textform += timeFormatter(hours) + ":" + timeFormatter(minutes) + ":" + timeFormatter(seconds)
+
                 isRunning = true
-                tvCounter.text = textform
+                binding.apply {
+                    dataBind.dateCounting = textform
+                    invalidateAll()
+                }
             }
 
             override fun onFinish() {
@@ -74,11 +81,20 @@ class AddItemActivity : AppCompatActivity(){
         }.start()
     }
 
-    private fun formatDate(time: Long): String{
+    //TODO make function which adding '0' when hour, min and sec are 1-9 (01, 02)
+    private fun timeFormatter(timeText: Long): String {
+        return if (timeText < 10){
+            "0$timeText"
+        }else{
+            timeText.toString()
+        }
+    }
+
+    private fun formatDate(time: Long): String {
         return SimpleDateFormat(DATE_FORMATTER, Locale.getDefault()).format(time)
     }
 
-    private fun showDatePicker(){
+    private fun showDatePicker() {
         val calendarInstance = Calendar.getInstance()
         val day = calendarInstance.get(Calendar.DAY_OF_MONTH)
         val month = calendarInstance.get(Calendar.MONTH)
@@ -87,14 +103,16 @@ class AddItemActivity : AppCompatActivity(){
         val dpd = DatePickerDialog(
             this,
             DatePickerDialog.OnDateSetListener { _, yearSel, monthOfYear, dayOfMonth ->
-                calendarInstance.set(yearSel, monthOfYear, dayOfMonth)
-                if(isRunning){
+                calendarInstance.set(yearSel, monthOfYear, dayOfMonth, 0, 0)
+                if (isRunning) {
                     countDownTimer?.cancel()
+                    isRunning = false
                 }
                 setSelectedDateView(formatDate(calendarInstance.timeInMillis), calendarInstance.timeInMillis)
 
             }, year, month, day
         )
+        dpd.datePicker.minDate = System.currentTimeMillis() - 1000
         dpd.show()
     }
 
