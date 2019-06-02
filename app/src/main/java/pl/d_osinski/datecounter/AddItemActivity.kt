@@ -48,7 +48,6 @@ class AddItemActivity : AppCompatActivity(), LifecycleObserver{
         startTimer(totalMillis)
     }
 
-    @OnLifecycleEvent(Lifecycle.Event.ON_START)
     private fun startTimer(totalMillis: Long) {
         countDownTimer = object : CountDownTimer(totalMillis, 1000) {
             override fun onTick(millisUntilFinishedd: Long) {

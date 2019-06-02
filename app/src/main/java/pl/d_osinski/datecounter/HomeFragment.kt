@@ -2,15 +2,18 @@ package pl.d_osinski.datecounter
 
 import androidx.lifecycle.ViewModelProviders
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.LifecycleObserver
 import pl.d_osinski.datecounter.databinding.HomeFragmentBinding
+import java.util.*
 
 
-class HomeFragment : Fragment() {
+class HomeFragment : Fragment(){
 
     companion object {
         fun newInstance() = HomeFragment()
@@ -28,7 +31,7 @@ class HomeFragment : Fragment() {
 
         val application = requireNotNull(this.activity).application
 
-        val viewModelFactory = HomeFragmentViewModelFactory(application)
+        val viewModelFactory = HomeFragmentViewModelFactory(application, this.lifecycle)
 
         val homeFragmentViewModel =
             ViewModelProviders.of(
@@ -41,6 +44,10 @@ class HomeFragment : Fragment() {
         return binding.root
     }
 
+    override fun onStart() {
+        super.onStart()
+        viewModel.startTimer()
+    }
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         viewModel = ViewModelProviders.of(this).get(HomeViewModel::class.java)

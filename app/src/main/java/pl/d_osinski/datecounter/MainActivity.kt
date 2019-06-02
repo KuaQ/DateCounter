@@ -41,8 +41,8 @@ class  MainActivity : AppCompatActivity() {
         val navView: BottomNavigationView = findViewById(R.id.nav_view)
 
         textMessage = findViewById(R.id.message)
-        navView.setOnNavigationItemSelectedListener(onNavigationItemSelectedListener)
         navView.selectedItemId = 0
+        navView.setOnNavigationItemSelectedListener(onNavigationItemSelectedListener)
 
         floatingActionButton.setOnClickListener {
             val intent = Intent(this, AddItemActivity::class.java)
