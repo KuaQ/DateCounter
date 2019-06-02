@@ -58,6 +58,7 @@ class HomeViewModel(application: Application, lifecycle: Lifecycle) : AndroidVie
 
     @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
     fun stopTimer(){
+        timeStampLong.value = dateToCountTimeStamp - Calendar.getInstance().timeInMillis
         countDownTimer?.cancel()
         Log.d("onStop", Calendar.getInstance().timeInMillis.toString())
     }
