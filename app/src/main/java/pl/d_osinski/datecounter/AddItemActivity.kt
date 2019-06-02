@@ -5,19 +5,22 @@ import android.os.Bundle
 import android.os.CountDownTimer
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleObserver
+import androidx.lifecycle.OnLifecycleEvent
 import pl.d_osinski.datecounter.databinding.ActivityAddItemBinding
 import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.TimeUnit
 
 
-class AddItemActivity : AppCompatActivity() {
+class AddItemActivity : AppCompatActivity(), LifecycleObserver{
 
     companion object {
         const val DATE_FORMATTER = "EEEE, dd.MM.yyyy"
     }
 
-    var countDownTimer: CountDownTimer? = null
+    private var countDownTimer: CountDownTimer? = null
     var isRunning: Boolean = false
 
     private lateinit var binding: ActivityAddItemBinding
@@ -29,8 +32,8 @@ class AddItemActivity : AppCompatActivity() {
         binding.button.setOnClickListener {
             showDatePicker()
         }
+        lifecycle.addObserver(this)
     }
-
 
     private fun setSelectedDateView(formattedDate: String, dateMillis: Long) {
         binding.apply {
@@ -42,12 +45,12 @@ class AddItemActivity : AppCompatActivity() {
         val startMillis = Calendar.getInstance().timeInMillis
         val totalMillis = dateMillis - startMillis
 
-        counterMng(totalMillis)
+        startTimer(totalMillis)
     }
 
-    private fun counterMng(totalMillis: Long) {
+    @OnLifecycleEvent(Lifecycle.Event.ON_START)
+    private fun startTimer(totalMillis: Long) {
         countDownTimer = object : CountDownTimer(totalMillis, 1000) {
-
             override fun onTick(millisUntilFinishedd: Long) {
                 var millisUntilFinished = millisUntilFinishedd
 
@@ -72,13 +75,19 @@ class AddItemActivity : AppCompatActivity() {
                     invalidateAll()
                 }
             }
-
             override fun onFinish() {
 
             }
-        }.start()
+
+        }
     }
 
+    @OnLifecycleEvent(Lifecycle.Event.ON_PAUSE)
+    private fun cancelTimer(){
+        if(countDownTimer != null){
+            countDownTimer?.cancel()
+        }
+    }
     //TODO check performance of this - make function which adding '0' when hour, min and sec are 1-9 (01, 02)
     private fun timeFormatter(timeText: Long): String {
         return if (timeText < 10) {
