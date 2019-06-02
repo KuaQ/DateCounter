@@ -53,6 +53,8 @@ class AddItemActivity : AppCompatActivity(), LifecycleObserver{
             override fun onTick(millisUntilFinishedd: Long) {
                 var millisUntilFinished = millisUntilFinishedd
 
+                //val years = TimeUnit.MILLISECONDS.
+
                 val days = TimeUnit.MILLISECONDS.toDays(millisUntilFinished)
                 millisUntilFinished -= TimeUnit.DAYS.toMillis(days)
 

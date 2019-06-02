@@ -1,27 +1,50 @@
 package pl.d_osinski.datecounter
 
 import android.app.Application
+import android.content.SharedPreferences
 import android.os.CountDownTimer
+import android.preference.PreferenceManager
 import android.util.Log
 import androidx.lifecycle.*
 import java.util.*
 import java.util.concurrent.TimeUnit
 
-class HomeViewModel(application: Application, lifecycle: Lifecycle) : AndroidViewModel(application), LifecycleObserver {
 
+class HomeViewModel(application: Application, lifecycle: Lifecycle) : AndroidViewModel(application), LifecycleObserver {
+    companion object {
+        const val KEY_SAVED_ALREADY = "saved_already"
+        const val KEY_SAVED_TIMESTAMP = "saved_timestamp"
+    }
     private var countDownTimer: CountDownTimer? = null
     private val dateText = MutableLiveData<String>()
 
-    private val dateToCountTimeStamp: Long = getDateTimeStamp()
+    private val dateToCountTimeStamp: Long = getSavedTimestamp()
 
     private val clickCount = MutableLiveData<Int>().apply {
         postValue(0)
     }
 
-    private fun getDateTimeStamp() :Long{
-        val calendar = Calendar.getInstance()
-        calendar.set(2020, 1, 28, 0, 0)
-        return calendar.timeInMillis
+    //TODO Save to room dao and MutableLiveData<>()
+    private fun getSavedTimestamp() :Long{
+        val sharedPreferences: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplication())
+
+        val savedAlready = sharedPreferences.getBoolean(KEY_SAVED_ALREADY, false)
+
+        val savedTimestamp: Long
+        if(savedAlready){
+            savedTimestamp = sharedPreferences.getLong(KEY_SAVED_TIMESTAMP, 0L)
+        }else{
+            val calendar = Calendar.getInstance()
+
+            calendar.set(2020, 1, 28, 0, 0)
+
+            savedTimestamp = calendar.timeInMillis
+
+            sharedPreferences.edit().putBoolean(KEY_SAVED_ALREADY, true).apply()
+
+            sharedPreferences.edit().putLong(KEY_SAVED_TIMESTAMP, savedTimestamp).apply()
+        }
+        return savedTimestamp
     }
 
     private val timeStampLong = MutableLiveData<Long>()
