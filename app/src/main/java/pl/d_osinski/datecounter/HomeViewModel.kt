@@ -38,7 +38,6 @@ class HomeViewModel(application: Application, lifecycle: Lifecycle) : AndroidVie
 
     private fun initializeDate() {
         dateText.value = "czesc "
-        calculateTime()
     }
 
     val dateString: LiveData<String> = Transformations.map(dateText){
@@ -54,7 +53,7 @@ class HomeViewModel(application: Application, lifecycle: Lifecycle) : AndroidVie
     fun startTimer(){
         Log.d("onStart", Calendar.getInstance().timeInMillis.toString())
         timeStampLong.value = dateToCountTimeStamp - Calendar.getInstance().timeInMillis
-        countDownTimer?.start()
+        calculateTime()
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
@@ -91,7 +90,7 @@ class HomeViewModel(application: Application, lifecycle: Lifecycle) : AndroidVie
                 timeLeftString.value = "finished"
             }
 
-        }
+        }.start()
     }
     private fun timeFormatter(timeText: Long): String {
         return if (timeText < 10) {
